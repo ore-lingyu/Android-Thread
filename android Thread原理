@@ -1,0 +1,16 @@
+Android native的Thread类是Android提供的一个基础类，源码路径：
+system\core\libutils\include\utils\Thread.h
+system\core\libutils\Threads.cpp
+
+该类提供的基础功能涵盖了线程的生命周期：创建、运行、销毁。主要成员函数如下：
+0、本身继承于RefBase，所以具有相应的一些特性
+// Invoked after creation of initial strong pointer/reference.
+    virtual void            onFirstRef();
+
+1、执行线程创建并启动运行，通过run方法（和java有点差异）：
+status_t run(const char* name, int32_t priority, size_t stack);
+2、循环执行方法
+2.1 先执行readyToRun()
+2.2 创建完成后，开始执行_threadLoop()函数，该函数主要通过调用threadLoop()函数，因此基类必要要实现threadLoop函数，作为线程执行函数，它是有返回值的方法，而且_threadLoop会根据返回值确定是否继续循环执行的方法。
+3、线程请求退出方法
+线程销毁，子类最好通过实现requestExit()函数，首先调用Thread类的requestExit()函数，将线程状态mExitPending置为true，然后中断threadLoop：
